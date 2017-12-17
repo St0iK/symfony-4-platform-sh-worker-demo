@@ -1,0 +1,76 @@
+# The unique identifier of the application.
+name: playground
+
+# The language that will run your application.
+type: php:7.1
+# The way to build your application.
+build:
+    flavor: composer
+
+runtime:
+    extensions:
+        - redis
+
+# The way services are mapped within your application.
+relationships:
+    database: "mysql:mysql"
+    applicationcache: "rediscache:redis"
+
+# The way your application is exposed to the web.
+web:
+    locations:
+        "/":
+            root: "public"
+            expires: 300s
+            passthru: "/index.php"
+            index:
+                - index.php
+            allow: true
+
+# The size of the persistent disk size of your application in MB.
+disk: 2048
+
+workers:
+    queue:
+        commands:
+            start: |
+                ./bin/console enqueue:consume -e=prod
+        disk: 256
+        size: 'M'
+        mounts:
+            "/var/cache": "shared:files/cache"
+            "/var/log": "shared:files/log"
+            "/var/sessions": "shared:files/sessions"
+        relationships:
+            database: "mysql:mysql"
+            applicationcache: "rediscache:redis"
+        variables:
+            env:
+                type: 'worker'
+
+# The volumes that are mounted under a writable shared resource.
+mounts:
+    "/var/cache": "shared:files/cache"
+    "/var/logs": "shared:files/logs"
+    "/var/log": "shared:files/log"
+    "/var/sessions": "shared:files/sessions"
+    "/var/spool": "shared:files/spool"
+    "/var/uploads": "shared:files/uploads"
+
+variables:
+  php:
+    date.timezone: "Europe/London"
+
+# The shell commands to run during the build or deployment process.
+#hooks:
+#    deploy: |
+#        ./bin/console -e=prod cache:clear
+#        ./bin/console -e=prod doctrine:migrations:migrate --no-interaction
+#     # We run deploy hook after your application has been deployed and started.
+#     deploy: |
+#         cd public
+#         drush -y updatedb
+#crons:
+#   spool:
+#        spec: "* * * * *"
+#        cmd: "./bin/console -e=prod -q --message-limit=50 swiftmailer:spool:send"

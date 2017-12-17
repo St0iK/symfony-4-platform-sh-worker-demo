@@ -1,0 +1,39 @@
+doctrine:
+    dbal:
+        driver: pdo_mysql
+        host: '%database_host%'
+        port: '%database_port%'
+        dbname: '%database_name%'
+        user: '%database_user%'
+        password: '%database_password%'
+        charset: UTF8
+    orm:
+        metadata_cache_driver:
+            type: service
+            id: doctrine.system_cache_provider
+        query_cache_driver:
+            type: service
+            id: doctrine.system_cache_provider
+        result_cache_driver:
+            type: service
+            id: doctrine.result_cache_provider
+
+services:
+    doctrine.result_cache_provider:
+        class: Symfony\Component\Cache\DoctrineProvider
+        public: false
+        arguments:
+            - '@doctrine.result_cache_pool'
+    doctrine.system_cache_provider:
+        class: Symfony\Component\Cache\DoctrineProvider
+        public: false
+        arguments:
+            - '@doctrine.system_cache_pool'
+
+framework:
+    cache:
+        pools:
+            doctrine.result_cache_pool:
+                adapter: cache.app
+            doctrine.system_cache_pool:
+                adapter: cache.system

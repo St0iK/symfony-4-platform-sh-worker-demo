@@ -1,0 +1,28 @@
+https://{default}/:
+  type: upstream
+  redirects:
+    expires: -1s
+    paths: {}
+  cache:
+    enabled: true
+    default_ttl: 0
+    cookies:
+    - '*'
+    headers:
+    - Accept
+    - Accept-Language
+  ssi:
+    enabled: false
+  upstream: playground:php
+https://www.{default}/:
+  type: redirect
+  redirects:
+    expires: -1s
+    paths: {}
+  to: https://{default}/
+http://{default}/:
+  type: redirect
+  redirects:
+    expires: -1s
+    paths: {}
+  to: https://{default}/
